@@ -8,37 +8,7 @@ const connection = mysql.createConnection({
     database:'Shalendar'
 });
 
-connection.connect();
-
-// sql = "SELECT * FROM data"; 
-
-connection.query(function(err){
-    if (err) throw err;
-    console.log('Connected');
-    connection.query('CREATE DATEBASE sw', function(err, result){
-    if (err) throw err;
-        console.log('database created');
-    });
+connection.query('SELECT * from user_data', (err, rows, fields) => {
+  if (err) throw err;
+  console.log('User info is: ', rows);
 });
-
-connection.query(function(err){
-    if (err) throw err;
-    console.log('Connected');
-    const sql = '위 SQL 쿼리 복사';
-    connection.query(sql, function (err, result){
-        if (err) throw err;
-        console.log('table created');
-    });
-});
-
-connection.query(function (err) {
-    if (err) throw err;
-    console.log('Connected');
-    const sql = 'select * from user_data'
-    connection.query(sql, function(err, result, fields){
-    if (err) throw err;
-    console.log(result)
-    })
-});
-
-connection.end();
