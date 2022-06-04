@@ -1,4 +1,6 @@
 var express = require('express');
+const mysql = require('mysql');
+const dbconfig = require('./config/database.js');
 var router = express.Router();
 
 const db = require('./../db');
@@ -9,7 +11,5 @@ router.get('/', function(req, res, next) {
     res.render('index', { rows: rows });
   });
 });
-
-
 
 module.exports = router;

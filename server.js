@@ -1,6 +1,9 @@
 const express = require('express')
-const app = express()
-const port = 3001
+const app = express();
+const port = 3001;
+const mysql = require('mysql');
+// const db = require("./db/index.js");
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
