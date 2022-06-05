@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Edit User Data</title>
+</head>
+<body>
+  <h1>Edit User Info</h1>
+  <hr/>
+  <form method="post">
+    <fieldset>
+      <legend>Edit User Info</legend>
+      <table>
+        <tr>
+            <td><label>Id</label></td>
+            <td><input type="text" name="id" value="<%= user_data.id %>" disabled /></td>
+        </tr>
+        <tr>
+            <td><label>Name</label></td>
+            <td><input type="text" name="user_name" value="<%= user_data.user_name %>" /></td>
+        </tr>
+        <tr>
+            <td><label>Email</label></td>
+            <td><input type="text" name="email" value="<%= user_data.email %>" /></td>
+        </tr>
+        <tr>
+            <td><label>Phone_number</label></td>
+            <td><input type="text" name="phone_number" value="<%= user_data.phone_number %>" /></td>
+          </tr>
+        <tr>
+            <td><label>PASSWORD</label></td>
+            <td><input type="text" name="pw" value="<%= user_data.pw %>" /></td>
+        </tr>
+        <tr>
+            <td><label>Bank_Number</label></td>
+            <td><input type="text" name="bank_number" value="<%= user_data.bank_number %>" /></td>
+        </tr>
+        <tr>
+            <td><label>Bank</label></td>
+            <td><input type="text" name="bank" value="<%= user_data.bank %>" /></td>
+        </tr>
+      </table>
+      <input type="submit" value="Submit!" />
+    </fieldset>
+  </form>
+</body>
+</html>

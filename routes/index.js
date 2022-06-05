@@ -8,7 +8,7 @@ const app = express();
 // const db = require('./../db');
 
 /* GET home page. */
-app.set('port', process.env.PORT || 3001);
+app.set('port', process.env.PORT);
 
 app.get('/', function(req, res) {
   res.send('Root');

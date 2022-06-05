@@ -1,12 +1,23 @@
-const express = require('express')
+const express = require('express');
+const fs = require('fs');
+const ejs = require('ejs');
 const app = express();
+const path = require('path');
 const port = 3001;
 const mysql = require('mysql');
 const dbconfig = require('./config/database.js');
 const router = express.Router();
 
+const client = mysql.createConnection({
+    user: 'root',
+    password: '3897', //본인의 db root 계정 비밀번호
+    database: 'Shalendar' //본인의 db
+})
+
 const connection = mysql.createConnection(dbconfig);
 
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 app.listen(port, () => {
     console.log(`Server is running at : ${port}`)
@@ -27,17 +38,24 @@ app.get('/user', function(req, res) {
         res.send(rows);
         });
     })
-    .post(function(req, res){   //  3001/user 로 post 요청 , templates 파일 action 과 동일한 URI
-        var data = req.body.des // data 변수안에 요청받은 bodyparser 중에 파일에 des 
-        var query = db.query('INSERT INTO user_data (des) VALUES (?)',[    // user_data 안의 des 테이블
-            data
-        ])
-        var list = db.query('SELECT * FROM user_data', (err, results) => {  // err, results 콜백함수값으로 
-            if(err) throw err;  // err 있으면 err 를 throw
-            console.log('DATA RECEIVE:'); 
-            console.log(results); // results (결과값) 출력
-            res.send(results)
-        })
+    // .get('/user/insert', function(req, res){
+    //     const sql = 'SELECT * FROM user_data';
+    //     connection.query(sql, function(err, user_data, fields){
+    //         if(err){
+    //             console.log(err);
+    //             res.status(500).send('Internal Server Error')
+    //         }
+    //             res.render('user', {user_data : user_data});
+    //     });
+    // })
+    .get('/user/insert', function(req, res) {
+        const sql = `INSERT INTO user_data (user_name, email, phone_number, pw, bank_number, bank, connecting) VALUES(?, ?, ?, ?, ?, ?, ?)`;
+        const params = ['user1', 'user@a.com', '010-1111-1111', '1111', '1111', 'testbank', 1]
+        connection.query(sql, params, function(err, rows, fields){
+        if(err) console.log(err);
+        console.log(rows);
+        res.redirect('/user')
+    })
     })
     .get('/user/delete/:id' ,function (req, res) {
         const sql = "DELETE FROM user_data WHERE id = ?";
@@ -47,15 +65,17 @@ app.get('/user', function(req, res) {
             res.redirect('/user')
         })
     })
-    .get('/user/update/:id', function(req,res){ // 수정링크를 타고 들어온 데이터의 id 값과 des 값을 받아서 update ejs 파일로 넘긴다
-        var sql = "SELECT * FROM user_data WHERE id = ?";
+    .get('/user/update/:id' ,function (req, res) {
+        const sql = `UPDATE user_data SET user_name="?", email="?", phone_number="?", pw="?", bank_number="?", bank="?", connecting="?" WHERE id=?`;
+        const id = req.params.id;
+        const params = ['user3', 'user2@b.com', '010-2222-2222', '2222', '2222', 'testbank2', 1, id];
         
-        db.query(sql, [req.params.id],function(err, results, fields){
-            if (err) throw err;
-            console.log(results);
-            res.render('update',{users : results}); // 쿼리문 날린 results 값을 users 란 key 에 담기 
+        connection.query(sql, params, function(err, rows, fields){
+            if(err) console.log(err);
+            console.log(rows);
+            res.redirect('/user')
         });
-    });
+    })
 
 app.get('/calendar', function(req, res) {
         connection.query('SELECT * from calendar', (err, rows) =>{
@@ -64,16 +84,11 @@ app.get('/calendar', function(req, res) {
         res.send(rows);
         });
     })   
-    .post(function(req, res){  
-        var data = req.body.des 
-        var query = db.query('INSERT INTO calendar (des) VALUES (?)',[    
-            data
-        ])
-        var list = db.query('SELECT * FROM calendar', (err, results) => {  
-            if(err) throw err; 
-            console.log('DATA RECEIVE:'); 
-            console.log(results);
-            res.send(results)
+    .post('/calendar/insert', function(req, res){   //  3001/user 로 post 요청 , templates 파일 action 과 동일한 URI
+        connection.query(`INSERT INTO calendar VALUES ('?','?','?','?','?')`, req.body, function(err,results,fields){  // 연결할 데이터베이스 변수명 db 로 설정해둿음 맨위에
+        if (err) throw err;
+        console.log(results);       
+        res.redirect('/calendar')
         })
     })
     .get('/calendar/delete/:id' ,function (req, res) {
@@ -85,12 +100,12 @@ app.get('/calendar', function(req, res) {
         })
     })
     .get('/calendar/update/:id', function(req,res){ 
-        var sql = "SELECT * FROM calendar WHERE id = ?";
+        const sql = "SELECT * FROM calendar WHERE id = ?";
         
-        db.query(sql, [req.params.id],function(err, results, fields){
+        connection.query(sql, [req.params.id],function(err, results, fields){
             if (err) throw err;
             console.log(results);
-            res.render('update',{users : results});
+            res.render('calendar',{id : req.params.id}); 
         });
     });
 
@@ -102,16 +117,17 @@ app.get('/alarm', function(req, res) {
         res.send(rows);
         });
     })       
-    .post(function(req, res){   
-        var data = req.body.des 
-        var query = db.query('INSERT INTO alarm (des) VALUES (?)',[    
-            data
-        ])
-        var list = db.query('SELECT * FROM alarm', (err, results) => {  
-            if(err) throw err;  
-            console.log('DATA RECEIVE:'); 
-            console.log(results); 
-            res.send(results)
+    .post('/alarm/insert', function (req, res) {
+        const body = req.body
+
+        client.query('INSERT INTO alarm VALUES (?,?,?,?,?);', [
+            body.id,
+            body.accept,
+            body.payment,
+            body.schedule,
+            body.before
+        ], function() {
+            res.redirect('/alarm')
         })
     })
     .get('/alarm/delete/:id' ,function (req, res) {
@@ -123,12 +139,12 @@ app.get('/alarm', function(req, res) {
         })
     })
     .get('/alarm/update/:id', function(req,res){ 
-        var sql = "SELECT * FROM alarm WHERE id = ?";
+        const sql = "SELECT * FROM alarm WHERE id = ?";
         
-        db.query(sql, [req.params.id],function(err, results, fields){
+        connection.query(sql, [req.params.id],function(err, results, fields){
             if (err) throw err;
             console.log(results);
-            res.render('update',{users : results});
+            res.render('alarm',{id : req.params.id}); 
         });
     });
 
@@ -140,16 +156,16 @@ app.get('/schedule', function(req, res) {
         res.send(rows);
         });
     })       
-    .post(function(req, res){  
-        var data = req.body.des  
-        var query = db.query('INSERT INTO schedule (des) VALUES (?)',[   
-            data
-        ])
-        var list = db.query('SELECT * FROM schedule', (err, results) => {  
-            if(err) throw err;  
-            console.log('DATA RECEIVE:'); 
-            console.log(results); 
-            res.send(results)
+    .post('/schedule/insert', function (req, res) {
+        const body = req.body
+
+        client.query('INSERT INTO schedule VALUES (?,?,?,?);', [
+            body.id,
+            body.title,
+            body.content,
+            body.date
+        ], function() {
+            res.redirect('/schedule')
         })
     })
     .get('/schedule/delete/:id' ,function (req, res) {
@@ -161,11 +177,11 @@ app.get('/schedule', function(req, res) {
         })
     })
     .get('/schedule/update/:id', function(req,res){ 
-        var sql = "SELECT * FROM schedule WHERE id = ?";
+        const sql = "SELECT * FROM schedule WHERE id = ?";
         
-        db.query(sql, [req.params.id],function(err, results, fields){
+        connection.query(sql, [req.params.id],function(err, results, fields){
             if (err) throw err;
             console.log(results);
-            res.render('update',{users : results}); 
+            res.render('schedule',{id : req.params.id}); 
         });
     });

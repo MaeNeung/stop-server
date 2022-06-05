@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>User</title>
+    <link rel="stylesheet" href="/css/master.css">
+  </head>
+  <body>
+    <h1>Hello
+      <% if(id){ %>
+        <span class="id"><%= id %>!</span>
+      <% } else { %>
+        <span class="stranger">Stranger!</span>
+      <% } %>
+    </h1>
+  </body>
+</html>
