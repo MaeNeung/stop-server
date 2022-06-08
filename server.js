@@ -4,11 +4,6 @@ const path = require('path');
 const port = 3001;
 const mysql = require('mysql');
 const dbconfig = require('./config/database.js');
-const client = mysql.createConnection({
-    user: 'root',
-    password: '3897',
-    database: 'Shalendar' 
-})
 
 const connection = mysql.createConnection(dbconfig);
 
@@ -29,7 +24,7 @@ app.post('/', function (req, res) {
 
 app.get('/user', function(req, res) {
         connection.query('SELECT * from user_data', (err, rows) =>{
-        if (err) throw err;
+        if (err) console.log("error")
         console.log('User info is:', rows);
         res.send(rows);
         });
@@ -46,7 +41,7 @@ app.get('/user', function(req, res) {
     .get('/user/delete/:id' ,function (req, res) {
         const sql = "DELETE FROM user_data WHERE id = ?";
         connection.query(sql, [req.params.id], function(err, result, fields){
-            if (err) throw err;
+            if (err) console.log("error")
             console.log(result)
             res.redirect('/user')
         })
@@ -57,7 +52,7 @@ app.get('/user', function(req, res) {
         const params = ['user3', 'user2@b.com', '010-2222-2222', '2222', '2222', 'testbank2', 1, id];
         
         connection.query(sql, params, function(err, rows, fields){
-            if(err) console.log(err);
+            if (err) console.log("error")
             console.log(rows);
             res.redirect('/user')
         });
@@ -74,7 +69,7 @@ app.get('/calendar', function(req, res) {
         const sql = `INSERT INTO calendar (title, content, date, participant) VALUES(?, ?, ?, ?, ?)`;
         const params = ['calendar2', 'content2', '2022-06-05', 'participant']
         connection.query(sql, params, function(err, rows, fields){
-        if(err) console.log(err);
+        if (err) console.log("error")
         console.log(rows);
         res.redirect('/calendar')
     })
@@ -82,7 +77,7 @@ app.get('/calendar', function(req, res) {
     .get('/calendar/delete/:id' ,function (req, res) {
         const sql = "DELETE FROM calendar WHERE id = ?";
         connection.query(sql, [req.params.id], function(err, result, fields){
-            if (err) throw err;
+            if (err) console.log("error")
             console.log(result)
             res.redirect('/calendar')
         })
@@ -93,7 +88,7 @@ app.get('/calendar', function(req, res) {
         const params = ['calendar3', 'content3', '2022-02-22', 'participants', id];
         
         connection.query(sql, params, function(err, rows, fields){
-            if(err) console.log(err);
+            if (err) console.log("error")
             console.log(rows);
             res.redirect('/calendar')
         });
@@ -102,7 +97,7 @@ app.get('/calendar', function(req, res) {
 
 app.get('/alarm', function(req, res) {
         connection.query('SELECT * from alarm', (err, rows) =>{
-        if (err) throw err;
+            if (err) console.log(err)
         console.log('Alarm info is:', rows);
         res.send(rows);
         });
@@ -111,15 +106,15 @@ app.get('/alarm', function(req, res) {
         const sql = `INSERT INTO alarm (accept, payment, schedule) VALUES(?, ?, ?)`;
         const params = ['accept2', 'payment2', 'schedule2']
         connection.query(sql, params, function(err, rows, fields){
-        if(err) console.log(err);
-        console.log(rows);
-        res.redirect('/alarm')
+            if (err) console.log(err)
+            console.log(rows);
+            res.redirect('/alarm')
     })
     })
     .get('/alarm/delete/:before' ,function (req, res) {
         const sql = "DELETE FROM alarm WHERE before = ?";
         connection.query(sql, [req.params.before], function(err, result, fields){
-            if (err) throw err;
+            if (err) console.log(err)
             console.log(result)
             res.redirect('/alarm')
         })
@@ -139,7 +134,7 @@ app.get('/alarm', function(req, res) {
     
 app.get('/schedule', function(req, res) {
     connection.query('SELECT * from schedule', (err, rows) =>{
-        if (err) throw err;
+        if(err) console.log(err);
         console.log('Schedule info is:', rows);
         res.send(rows);
         });
@@ -156,7 +151,7 @@ app.get('/schedule', function(req, res) {
     .get('/schedule/delete/:id' ,function (req, res) {
         const sql = "DELETE FROM schedule WHERE id = ?";
         connection.query(sql, [req.params.id], function(err, result, fields){
-            if (err) throw err;
+            if(err) console.log(err);
             console.log(result)
             res.redirect('/schedule')
         })
