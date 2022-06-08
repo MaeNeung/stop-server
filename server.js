@@ -2,8 +2,22 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const port = 3001;
+const cors = require("cors");
 const mysql = require('mysql');
 const dbconfig = require('./config/database.js');
+
+const whitelist = ["http://localhost:3000"]
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error("Not allowed by CORS"))
+        }
+    },
+    credentials: true,
+}
+app.use(cors(corsOptions))
 
 const connection = mysql.createConnection(dbconfig);
 
@@ -23,13 +37,15 @@ app.post('/', function (req, res) {
 });
 
 app.get('/user', function(req, res) {
-        connection.query('SELECT * from user_data', (err, rows) =>{
-        if (err) console.log("error")
-        console.log('User info is:', rows);
-        res.send(rows);
+    const id = req.params.id
+        connection.query('SELECT id == ${id} from user_data', (err, rows) =>{
+        if (err) console.log(err)
+        console.log('User info is:', rows[0]);
+        res.send({...rows[0], pw: undefined});
         });
     })
     .get('/user/insert', function(req, res) {
+        console.log(req, res)
         const sql = `INSERT INTO user_data (user_name, email, phone_number, pw, bank_number, bank, connecting) VALUES(?, ?, ?, ?, ?, ?, ?)`;
         const params = ['user1', 'user@a.com', '010-1111-1111', '1111', '1111', 'testbank', 1]
         connection.query(sql, params, function(err, rows, fields){
@@ -60,14 +76,14 @@ app.get('/user', function(req, res) {
 
 app.get('/calendar', function(req, res) {
         connection.query('SELECT * from calendar', (err, rows) =>{
-        if (err) throw err;
+        if (err) console.log(err);
         console.log('Calendar info is:', rows);
         res.send(rows);
         });
     })   
     .get('/calendar/insert', function(req, res) {
         const sql = `INSERT INTO calendar (title, content, date, participant) VALUES(?, ?, ?, ?, ?)`;
-        const params = ['calendar2', 'content2', '2022-06-05', 'participant']
+        const params = [res.get.title, res.get.content, res.get.date, '1']
         connection.query(sql, params, function(err, rows, fields){
         if (err) console.log("error")
         console.log(rows);
