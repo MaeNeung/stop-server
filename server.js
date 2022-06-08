@@ -60,28 +60,19 @@ app.post("/login", (req, res) => {
   );
 });
 
+app.get("/user/list", function (req, res) {
+  const sql = `SELECT email, user_name from user_data`;
+  connection.query(sql, function (err, rows) {
+    if (err) console.log(err);
+    res.send(rows);
+  });
+});
+
 app.get("/user/:id", function (req, res) {
   const id = req.params.id;
   connection.query(`SELECT * from user_data WHERE id = ${id}`, (err, rows) => {
     if (err) console.log(err);
     res.send({ ...rows[0], pw: undefined });
-  });
-});
-
-app.get("/user/insert", function (req, res) {
-  const sql = `INSERT INTO user_data (user_name, email, phone_number, pw, bank_number, bank, connecting) VALUES(?, ?, ?, ?, ?, ?, ?)`;
-  const params = [
-    "user1",
-    "user@a.com",
-    "010-1111-1111",
-    "1111",
-    "1111",
-    "testbank",
-    1,
-  ];
-  connection.query(sql, params, function (err, rows, fields) {
-    if (err) console.log(err);
-    res.redirect("/user");
   });
 });
 
